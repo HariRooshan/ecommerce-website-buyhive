@@ -58,7 +58,7 @@ $res = $conn->query("SELECT * FROM products");
 </head>
 <body>
 <div class="container mt-5 position-relative">
-    <a href="index.php" class="btn btn-secondary position-absolute top-0 end-0 mt-2 me-2">Back to Shop</a>
+    <a href="index.php" class="btn btn-warning position-absolute top-0 end-0 mt-2 me-2">Back to Shop</a>
     <h2 class="text-center mb-4">🛠️ Admin: Manage Products</h2>
     <div class="my-5 text-center">
         <button class="btn btn-success px-5 py-2" data-bs-toggle="modal" data-bs-target="#addProductModal">Add New Product</button>
@@ -96,13 +96,57 @@ $res = $conn->query("SELECT * FROM products");
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
               <button type="submit" class="btn btn-success" name="add">Add</button>
             </div>
           </form>
         </div>
       </div>
     </div>
+
+    <!-- Edit Product Modal (dynamic) -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form method="POST" enctype="multipart/form-data" id="editProductForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editProductModalLabel">Edit Product</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" name="id" id="edit-id">
+              <input type="hidden" name="current_image" id="edit-current-image">
+              <div class="mb-3">
+                <label class="form-label">Name <span class="text-danger">*</span></label>
+                <input type="text" name="name" id="edit-name" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Brand <span class="text-danger">*</span></label>
+                <input type="text" name="brand" id="edit-brand" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Price <span class="text-danger">*</span></label>
+                <input type="number" name="price" id="edit-price" class="form-control" min="0" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Quantity <span class="text-danger">*</span></label>
+                <input type="number" name="quantity" id="edit-quantity" class="form-control" min="0" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Product Image</label>
+                <div id="edit-image-preview" class="mb-2"></div>
+                <input type="file" name="image" class="form-control" accept="image/*">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Discard</button>
+              <button type="submit" class="btn btn-success" name="edit">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <table class="table table-bordered align-middle text-center">
         <thead class="table-light">
             <tr>
@@ -110,38 +154,63 @@ $res = $conn->query("SELECT * FROM products");
                 <th>Brand</th>
                 <th>Price</th>
                 <th>Quantity</th>
+                <th>Image</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
         <?php while ($row = $res->fetch_assoc()): ?>
             <tr<?= ($row['quantity'] < 5 ? ' class="table-warning"' : '') ?>>
-                <form method="POST" enctype="multipart/form-data" class="row g-1 align-items-center">
-                    <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                    <input type="hidden" name="current_image" value="<?= htmlspecialchars($row['image']) ?>">
-                    <td><input type="text" name="name" value="<?= htmlspecialchars($row['name']) ?>" class="form-control" required></td>
-                    <td><input type="text" name="brand" value="<?= htmlspecialchars($row['brand']) ?>" class="form-control" required></td>
-                    <td><input type="number" name="price" value="<?= $row['price'] ?>" class="form-control" min="0" required></td>
-                    <td>
-                        <input type="number" name="quantity" value="<?= $row['quantity'] ?>" class="form-control" min="0" required>
-                        <?php if ($row['quantity'] < 5): ?>
-                            <span class="badge bg-danger mt-1">Low Stock!</span>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <?php if (!empty($row['image'])): ?>
-                            <img src="images/<?= htmlspecialchars($row['image']) ?>" alt="Product Image" style="width:50px;height:50px;object-fit:cover;" class="me-2 mb-1 rounded">
-                        <?php endif; ?>
-                        <input type="file" name="image" class="form-control mb-1" accept="image/*">
-                        <button class="btn btn-primary btn-sm" name="edit">Save</button>
-                        <button class="btn btn-danger btn-sm" name="delete" onclick="return confirm('Delete this product?')">Delete</button>
-                    </td>
-                </form>
+                <td><?= htmlspecialchars($row['name']) ?></td>
+                <td><?= htmlspecialchars($row['brand']) ?></td>
+                <td><?= $row['price'] ?></td>
+                <td>
+                    <?= $row['quantity'] ?>
+                    <?php if ($row['quantity'] < 5): ?>
+                        <span class="badge bg-danger mt-1">Low Stock!</span>
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <?php if (!empty($row['image'])): ?>
+                        <img src="images/<?= htmlspecialchars($row['image']) ?>" alt="Product Image" style="width:50px;height:50px;object-fit:cover;" class="me-2 mb-1 rounded">
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <button 
+                        class="btn btn-primary btn-sm edit-btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editProductModal"
+                        data-id="<?= $row['id'] ?>"
+                        data-name="<?= htmlspecialchars($row['name']) ?>"
+                        data-brand="<?= htmlspecialchars($row['brand']) ?>"
+                        data-price="<?= $row['price'] ?>"
+                        data-quantity="<?= $row['quantity'] ?>"
+                        data-image="<?= htmlspecialchars($row['image']) ?>"
+                    >Edit</button>
+                    <form method="POST" style="display:inline;">
+                        <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                        <button class="btn btn-danger btn-sm" name="delete" onclick="return confirm('Delete this product?')">Remove</button>
+                    </form>
+                </td>
             </tr>
         <?php endwhile; ?>
         </tbody>
     </table>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.querySelectorAll('.edit-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.getElementById('edit-id').value = btn.getAttribute('data-id');
+        document.getElementById('edit-name').value = btn.getAttribute('data-name');
+        document.getElementById('edit-brand').value = btn.getAttribute('data-brand');
+        document.getElementById('edit-price').value = btn.getAttribute('data-price');
+        document.getElementById('edit-quantity').value = btn.getAttribute('data-quantity');
+        document.getElementById('edit-current-image').value = btn.getAttribute('data-image');
+        var img = btn.getAttribute('data-image');
+        var preview = document.getElementById('edit-image-preview');
+        preview.innerHTML = img ? '<img src="images/' + img + '" style="width:50px;height:50px;object-fit:cover;" class="rounded">' : '';
+    });
+});
+</script>
 </body>
-</html>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
