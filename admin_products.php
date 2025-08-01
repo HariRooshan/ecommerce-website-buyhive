@@ -166,8 +166,10 @@ $res = $conn->query("SELECT * FROM products");
                 <td><?= $row['price'] ?></td>
                 <td>
                     <?= $row['quantity'] ?>
-                    <?php if ($row['quantity'] < 5): ?>
-                        <span class="badge bg-danger mt-1">Low Stock!</span>
+                    <?php if ($row['quantity'] == 0): ?>
+                        <span class="badge bg-danger mt-1">OUT OF STOCK!</span>
+                    <?php elseif ($row['quantity'] < 10): ?>
+                        <span class="badge bg-warning mt-1">Low Stock!</span>
                     <?php endif; ?>
                 </td>
                 <td>
