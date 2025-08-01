@@ -7,9 +7,17 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
+// Count total products
+$product_count = $conn->query("SELECT COUNT(*) as cnt FROM products")->fetch_assoc()['cnt'];
+
 // Handle add, edit, delete actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['add'])) {
+       // Prevent adding if limit reached
+        if ($product_count >= 1000) {
+            header('Location: admin_products.php?error=Cannot add more than 1000 products.');
+            exit();
+        }
         $name = $_POST['name'];
         $brand = $_POST['brand'];
         $price = (float)$_POST['price'];
@@ -212,7 +220,22 @@ document.querySelectorAll('.edit-btn').forEach(function(btn) {
         var img = btn.getAttribute('data-image');
         var preview = document.getElementById('edit-image-preview');
         preview.innerHTML = img ? '<img src="images/' + img + '" style="width:50px;height:50px;object-fit:cover;" class="rounded">' : '';
+        // Store previous quantity for revert
+        document.getElementById('edit-quantity').setAttribute('data-prev', btn.getAttribute('data-quantity'));
     });
 });
+
+// Prevent setting quantity > 1000 in edit modal
+document.getElementById('edit-quantity').addEventListener('input', function(e) {
+    var qty = parseInt(this.value, 10);
+    var prev = this.getAttribute('data-prev');
+    if (qty > 1000) {
+        alert('Quantity cannot be greater than 1000.');
+        this.value = prev;
+    } else {
+        this.setAttribute('data-prev', this.value);
+    }
+});
+
 </script>
 </body>
