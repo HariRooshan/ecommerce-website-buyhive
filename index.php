@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'])) {
     while ($row = $res->fetch_assoc()):
         $isOutOfStock = ($row['quantity'] <= 0);
     ?>
-    <div class="col-md-4 mb-4">
+    <div class="col-md-3 mb-4">
       <div class="card h-100">
         <img src="images/<?= $row['image'] ?>" class="card-img-top" style="height: 350px; object-fit: cover;">
         <div class="card-body">
