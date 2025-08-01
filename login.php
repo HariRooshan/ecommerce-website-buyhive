@@ -45,7 +45,7 @@ $locked = $_SESSION['login_attempts'] >= $max_attempts;
                         <label class="form-check-label" for="roleAdmin">Admin</label>
                     </div>
                 </div>
-                <button class="btn btn-primary w-100">Login</button>
+                <button name = "login" class="btn btn-primary w-100">Login</button>
             </form>
             <p class="mt-3 text-center">Don't have an account? <a href="register.php">Register</a></p>
         </div>
