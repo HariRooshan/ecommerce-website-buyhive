@@ -8,6 +8,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $confirm = trim($_POST['confirm_password']);
     $role = isset($_POST['role']) ? $_POST['role'] : 'user';
 
+
+    if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/', $password)) {
+        header("Location: register.php?error=Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.");
+        exit();
+    }
+    
     if ($password !== $confirm) {
         header("Location: register.php?error=Passwords do not match");
         exit();

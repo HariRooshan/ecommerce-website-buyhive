@@ -30,6 +30,9 @@ if (isset($_SESSION['user'])) {
                 <div class="mb-3">
                     <label class="form-label">Password</label>
                     <input type="password" name="password" class="form-control" required />
+                    <div class="form-text text-muted">
+                        Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Confirm Password</label>
