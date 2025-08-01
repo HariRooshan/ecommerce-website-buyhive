@@ -15,7 +15,8 @@ wait = WebDriverWait(driver, 10)
 def test_registration():
     driver.get(BASE_URL + "register.php")
     # Try invalid password
-    driver.find_element(By.NAME, "username").send_keys("testuser1")
+    # driver.find_element(By.NAME, "username").send_keys("testuser1")
+    human_typing(driver.find_element(By.NAME, "username"), "testuser1")
     driver.find_element(By.NAME, "password").send_keys("abc")
     driver.find_element(By.NAME, "confirm_password").send_keys("abc")
     driver.find_element(By.XPATH, "//button[contains(text(),'Register')]").click()
@@ -43,7 +44,7 @@ def test_registration():
     driver.find_element(By.ID, "roleUser").click()
     driver.find_element(By.XPATH, "//button[contains(text(),'Register')]").click()
     time.sleep(1)
-    assert "Registration successful" in driver.page_source
+    assert "Registration successful! Login here" in driver.page_source
 
 def test_login():
     driver.get(BASE_URL + "login.php")
@@ -94,7 +95,7 @@ def test_catalog_and_cart():
             continue
     time.sleep(1)
     # Go to cart
-    driver.find_element(By.LINK_TEXT, "View Cart").click()
+    driver.find_element(By.PARTIAL_LINK_TEXT, "View Cart").click()
     time.sleep(1)
     assert "Shopping Cart" in driver.page_source
 
@@ -126,9 +127,9 @@ def test_payment():
             continue
     time.sleep(1)
     # Go to cart and then payment
-    driver.find_element(By.LINK_TEXT, "View Cart").click()
+    driver.find_element(By.PARTIAL_LINK_TEXT, "View Cart").click()
     time.sleep(1)
-    driver.find_element(By.LINK_TEXT, "Checkout").click()
+    driver.find_element(By.PARTIAL_LINK_TEXT, "Checkout").click()
     time.sleep(1)
     assert "Scan to Pay" in driver.page_source
     # Simulate payment
@@ -140,6 +141,11 @@ def test_logout():
     driver.get(BASE_URL + "logout.php")
     time.sleep(1)
     assert "Login" in driver.page_source
+
+def human_typing(element, text, delay=0.2):
+    for char in text:
+        element.send_keys(char)
+        time.sleep(delay)
 
 if __name__ == "__main__":
     try:
