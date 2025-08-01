@@ -15,9 +15,9 @@ if (empty($_SESSION['cart'])) {
 // Fetch cart items and check stock
 $cartItems = [];
 $insufficient = [];
-foreach ($_SESSION['cart'] as $id => $qty) {
-    $res = $conn->query("SELECT * FROM products WHERE id = $id");
-    if ($row = $res->fetch_assoc()) {
+    foreach ($_SESSION['cart'] as $id => $qty) {
+        $res = $conn->query("SELECT * FROM products WHERE id = $id");
+        if ($row = $res->fetch_assoc()) {
         if ($qty > $row['quantity']) {
             $insufficient[] = $row['name'] . " (Available: " . $row['quantity'] . ")";
         }
@@ -48,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pay'])) {
 <head>
     <title>Payment</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
 </head>
 <body>
 <div class="container mt-5">
@@ -86,6 +87,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pay'])) {
                     <div class="text-end mb-4">
                         <span class="fs-4 fw-bold text-success">Total Amount: ₹<?= $grandTotal ?></span>
                     </div>
+                    <div class="mb-4 text-center">
+                        <h5>Scan to Pay (UPI QR)</h5>
+                        <canvas id="qr"></canvas>
+                        <div class="form-text mt-2">Scan this QR code with your UPI app to pay.</div>
+                    </div>
                     <form method="POST" class="d-flex flex-column gap-3 align-items-center">
                         <button class="btn btn-success w-100 py-2 fs-5" name="pay">Pay & Complete Order</button>
                         <a href="cart.php" class="btn btn-secondary w-100 py-2 fs-5">Go Back to Cart</a>
@@ -95,5 +101,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pay'])) {
         </div>
     </div>
 </div>
+<script>
+// Generate QR code for payment (simulate UPI QR)
+var qr = new QRious({
+    element: document.getElementById('qr'),
+    value: "upi://pay?pa=merchant@upi&pn=EcommerceShop&am=<?= $grandTotal ?>&cu=INR",
+    size: 200
+});
+</script>
 </body>
 </html>
