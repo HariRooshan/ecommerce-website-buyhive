@@ -16,9 +16,9 @@ if (isset($_SESSION['lockout_time']) && time() < $_SESSION['lockout_time']) {
 }
 
 if ($_SESSION['login_attempts'] >= $max_attempts) {
-    $_SESSION['lockout_time'] = time() + 60; // 1 minute lockout
+    $_SESSION['lockout_time'] = time() + 10; // 10 sec lockout
     $_SESSION['login_attempts'] = 0;
-    $remaining = 60;
+    $remaining = 10;
     header("Location: login.php?error=Too many failed attempts. Please wait {$remaining} seconds before trying again.");
     exit();
 }
@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $_SESSION['login_attempts'] += 1; // Increment on failure
     if ($_SESSION['login_attempts'] >= $max_attempts) {
-        $_SESSION['lockout_time'] = time() + 60;
+        $_SESSION['lockout_time'] = time() + 10;
         $_SESSION['login_attempts'] = 0;
         header("Location: login.php?error=Too many failed attempts. Please try again later.");
     } else {
