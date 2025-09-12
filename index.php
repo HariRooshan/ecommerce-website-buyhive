@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db.php';
+include 'concurrent_users.php';
 
 if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
